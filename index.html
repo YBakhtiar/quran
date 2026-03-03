@@ -286,7 +286,6 @@
             .nav-btn {
                 display: none !important;
             }
-            /* مخفی کردن دکمه فول اسکرین در موبایل */
             .fullscreen-btn {
                 display: none !important;
             }
@@ -516,25 +515,55 @@
             }
         }
 
-        // --- هوشمندسازی کشیدن انگشت (Swipe) و جلوگیری از حساسیت بالا --- //
+        // --- نسخه بسیار دقیق و هوشمند کشیدن انگشت (Swipe) --- //
         let touchstartX = 0;
         let touchstartY = 0;
         let touchendX = 0;
         let touchendY = 0;
         let touchStartTime = 0;
+        let isMultiTouch = false; // بررسی استفاده از چند انگشت
 
         const swipeArea = document.getElementById('swipeArea');
 
         swipeArea.addEventListener('touchstart', function(event) {
-            // نادیده گرفتن لمس چندانگشتی (وقتی کاربر می‌خواهد زوم کند)
-            if (event.touches.length > 1) return;
-            touchstartX = event.changedTouches[0].screenX;
-            touchstartY = event.changedTouches[0].screenY;
-            touchStartTime = new Date().getTime();
+            // اگر بیش از یک انگشت روی صفحه بود، آن را به عنوان چندلمسی ثبت کن
+            if (event.touches.length > 1) {
+                isMultiTouch = true;
+                return;
+            }
+            
+            // فقط در صورتی که تک انگشتی است، اطلاعات شروع را ثبت کن
+            if (!isMultiTouch) {
+                touchstartX = event.changedTouches[0].screenX;
+                touchstartY = event.changedTouches[0].screenY;
+                touchStartTime = new Date().getTime();
+            }
+        }, {passive: true});
+
+        swipeArea.addEventListener('touchmove', function(event) {
+            // اگر کاربر در حین حرکت انگشت دوم را اضافه کرد، باز هم چندلمسی است
+            if (event.touches.length > 1) {
+                isMultiTouch = true;
+            }
         }, {passive: true});
 
         swipeArea.addEventListener('touchend', function(event) {
-            if (event.changedTouches.length > 1) return;
+            // اگر هنوز انگشتی روی صفحه باقی مانده، صبر کن تا همه برداشته شوند
+            if (event.touches.length > 0) {
+                return;
+            }
+
+            // اگر کاربر از دو یا چند انگشت استفاده کرده بود، قفل را باز کن اما ورق نزن
+            if (isMultiTouch) {
+                isMultiTouch = false;
+                return;
+            }
+
+            // بررسی زوم مرورگر (به عنوان لایه امنیتی دوم برای جلوگیری از ورق خوردن در حالت زوم)
+            if (window.visualViewport && window.visualViewport.scale > 1.05) {
+                return;
+            }
+
             touchendX = event.changedTouches[0].screenX;
             touchendY = event.changedTouches[0].screenY;
             let timeDiff = new Date().getTime() - touchStartTime;
@@ -542,16 +571,11 @@
         }, {passive: true});
 
         function handleSwipe(timeDiff) {
-            // اگر کاربر روی عکس زوم کرده باشد، ورق زدن قفل می‌شود تا راحت جابه‌جا شود
-            if (window.visualViewport && window.visualViewport.scale > 1.01) {
-                return;
-            }
-
             let diffX = Math.abs(touchendX - touchstartX);
             let diffY = Math.abs(touchendY - touchstartY);
             
-            // شرایط سخت‌گیرانه برای ورق خوردن: حرکت سریع (<800ms) و کاملا افقی (>100px)
-            if (diffX > 100 && diffX > diffY * 2 && timeDiff < 800) {
+            // شرایط سخت‌گیرانه برای ورق زدن: بسیار سریع (< 600ms)، فاصله طولانی‌تر (> 120px) و حرکتی کاملا افقی
+            if (diffX > 120 && diffX > diffY * 2.5 && timeDiff < 600) {
                 if (touchendX > touchstartX) {
                     nextPage(); // کشیدن به راست
                 } else {
