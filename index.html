@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="manifest.json">
     <title>القرآن الكريم</title>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.0/Vazirmatn-font-face.min.css">
@@ -19,44 +20,49 @@
             overflow: hidden;
         }
         
+        /* افکت شیشه‌ای با تاری کمتر و شفافیت بیشتر برای منو */
         .menu-toggle {
             position: fixed;
             top: 20px;
             right: 20px;
-            background-color: rgba(13, 22, 34, 0.5);
-            color: #7a8ea3;
-            border: 1px solid #233446;
-            font-size: 22px;
+            background: rgba(255, 255, 255, 0.1); /* شفافیت بیشتر */
+            backdrop-filter: blur(6px); /* تاری کمتر برای حس شیشه‌ای */
+            -webkit-backdrop-filter: blur(6px);
+            color: #cfddec;
+            border: 1px solid rgba(255, 255, 255, 0.2); /* حاشیه براق‌تر */
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            font-size: 20px;
             cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 8px;
-            /* شفافیت دکمه منو به ۵۰ درصد تغییر کرد */
-            opacity: 0.5;
-            transition: all 0.4s ease;
+            padding: 12px 16px;
+            border-radius: 14px;
+            opacity: 0.8;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             z-index: 1002;
         }
         
         .menu-toggle:hover {
             opacity: 1;
-            background-color: #1e2f42;
-            color: #cfddec;
-            border-color: #3b5068;
+            background: rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
         }
 
         .sidebar {
             position: fixed;
             top: 0;
-            right: -180px; 
-            width: 150px;
-            background-color: #111d2b;
+            right: -220px; 
+            width: 190px;
+            background: rgba(17, 29, 43, 0.75); /* شفافیت بیشتر برای سایدبار */
+            backdrop-filter: blur(10px); /* تاری متعادل برای سایدبار */
+            -webkit-backdrop-filter: blur(10px);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
             height: 100vh;
             overflow-y: auto;
-            box-shadow: -3px 0 15px rgba(0,0,0,0.8);
-            padding: 80px 0 15px 0; 
+            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
+            padding: 90px 0 20px 0; 
             scrollbar-width: thin;
-            scrollbar-color: #3b5068 #111d2b;
+            scrollbar-color: rgba(255,255,255,0.2) transparent;
             z-index: 1001;
-            transition: right 0.4s ease-in-out;
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .sidebar.open {
@@ -65,33 +71,71 @@
         
         .sidebar-title {
             font-family: 'Vazirmatn', 'Vazir', Tahoma, sans-serif !important;
-            color: #6a829e;
+            color: #8da4be;
             text-align: center;
-            margin-bottom: 15px;
-            font-size: 17px;
+            margin-bottom: 20px;
+            font-size: 16px;
             font-weight: bold;
-            border-bottom: 1px solid #233446;
-            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .offline-btn {
+            display: block;
+            width: 82%;
+            margin: 0 auto 20px auto;
+            padding: 12px 8px;
+            background: linear-gradient(135deg, #1c6abf 0%, #0d4a8c 100%);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(28, 106, 191, 0.3);
+            cursor: pointer;
+            font-family: 'Vazirmatn', 'Vazir', Tahoma, sans-serif !important;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        .offline-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(28, 106, 191, 0.5);
+        }
+        .offline-btn:disabled {
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: none;
+            cursor: not-allowed;
+            color: #5c748c;
         }
         
-        .sidebar button {
+        .progress-text {
+            color: #8da4be;
+            font-size: 12px;
+            text-align: center;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .sidebar button.juz-btn {
             font-family: 'Vazirmatn', 'Vazir', Tahoma, sans-serif !important;
             display: block;
-            width: 80%;
-            margin: 6px auto;
-            padding: 8px;
-            background-color: #1a2838;
+            width: 82%;
+            margin: 8px auto;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.05);
             color: #8da4be;
-            border: 1px solid #233446;
-            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
             cursor: pointer;
-            transition: 0.3s;
-            font-size: 15px;
+            transition: all 0.3s ease;
+            font-size: 14px;
         }
         
-        .sidebar button:hover {
-            background-color: #283c52;
-            color: #e2e8f0;
+        .sidebar button.juz-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transform: scale(1.02);
         }
         
         #juzList {
@@ -106,7 +150,7 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background-color: #0d1622;
+            background-color: transparent;
             overflow-y: auto;
             width: 100%;
         }
@@ -126,76 +170,78 @@
             height: 100%;
             max-width: 48%;
             object-fit: contain;
-            border-radius: 5px;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.6);
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             background-color: white;
             transition: filter 0.3s;
         }
         
+        /* دکمه‌های ورق زدن باریک‌تر با افکت شیشه‌ای روی عکس‌ها */
         .nav-btn {
             position: absolute;
             top: 0;
             height: 100%;
-            background-color: rgba(13, 22, 34, 0.2);
-            color: #5c748c;
-            padding: 0 8px; 
+            background: rgba(13, 22, 34, 0.05); /* شفافیت بیشتر */
+            backdrop-filter: blur(3px); /* تاری کمتر برای دکمه‌های ورق زدن */
+            -webkit-backdrop-filter: blur(3px);
+            color: #8da4be;
+            padding: 0 8px; /* باریک‌تر کردن دکمه‌ها */
             cursor: pointer;
             z-index: 100;
             border: none;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
-            /* شفافیت به ۷۰ درصد کاهش یافت تا کمتر به چشم بیاید */
+            font-size: 28px;
             opacity: 0.7;
-            transition: 0.3s;
+            transition: all 0.4s ease;
         }
         
         .nav-btn:hover {
-            background-color: rgba(30, 47, 66, 0.8);
-            color: #cfddec;
-            /* وقتی موس روی آن می‌رود کاملاً واضح می‌شود */
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
             opacity: 1;
         }
         
         .right-btn { 
             right: 0; 
-            border-radius: 12px 0 0 12px;
+            border-left: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         .left-btn { 
             left: 0; 
-            border-radius: 0 12px 12px 0;
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
 
+        /* افکت شیشه‌ای واقعی‌تر برای دکمه تمام‌صفحه */
         .fullscreen-btn {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background-color: rgba(13, 22, 34, 0.5);
-            color: #7a8ea3;
-            border: 1px solid #233446;
+            bottom: 25px;
+            left: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            color: #cfddec;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            font-size: 18px; 
+            font-size: 20px; 
             display: flex;
             justify-content: center;
             align-items: center;
             line-height: 0;
             padding: 0;
             cursor: pointer;
-            opacity: 0.3;
+            opacity: 0.7;
             z-index: 1000;
-            transition: all 0.4s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         
         .fullscreen-btn:hover {
             opacity: 1;
-            background-color: #1e2f42;
-            color: #cfddec;
-            border-color: #3b5068;
+            background: rgba(255, 255, 255, 0.15);
             transform: scale(1.1);
         }
 
@@ -219,35 +265,38 @@
             .nav-btn {
                 position: fixed;
                 top: auto;
-                bottom: 20px;
+                bottom: 25px;
                 height: auto;
-                padding: 15px 20px;
-                border-radius: 50px;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-                font-size: 24px;
-            }
-            .nav-btn:hover {
-                transform: scale(1.05);
+                padding: 15px 22px;
+                border-radius: 25px;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+                font-size: 20px;
+                background: rgba(13, 22, 34, 0.6);
             }
             .right-btn { right: 20px; }
             .left-btn { left: 20px; margin-left: 60px; }
             
             .fullscreen-btn {
-                bottom: 20px;
-                left: 10px;
+                bottom: 25px;
+                left: 15px;
                 width: 45px;
                 height: 45px;
-                font-size: 16px;
+                font-size: 18px;
             }
         }
     </style>
 </head>
 <body>
 
-    <button class="menu-toggle" onclick="toggleSidebar()" title="فهرست اجزاء">&#9776;</button>
+    <button class="menu-toggle" onclick="toggleSidebar()" title="منو">&#9776;</button>
 
     <div class="sidebar" id="sidebar">
         <div class="sidebar-title">فهرست اجزاء</div>
+        
+        <button id="downloadBtn" class="offline-btn" onclick="downloadAllPages()">دانلود کامل آفلاین</button>
+        <div id="progressText" class="progress-text">در حال دانلود...</div>
+
         <div id="juzList"></div>
     </div>
 
@@ -268,15 +317,65 @@
         const totalPages = 623;
         let currentPage = 1;
 
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('Service Worker ثبت شد', reg))
+                    .catch(err => console.log('خطا در ثبت Service Worker', err));
+            });
+        }
+
+        async function downloadAllPages() {
+            const btn = document.getElementById('downloadBtn');
+            const progress = document.getElementById('progressText');
+            
+            btn.disabled = true;
+            btn.innerText = "لطفا صبر کنید...";
+            progress.style.display = "block";
+
+            try {
+                const cache = await caches.open('quran-cache-v1');
+                let downloadedCount = 0;
+                
+                const batchSize = 20; 
+                for (let i = 1; i <= totalPages; i += batchSize) {
+                    const promises = [];
+                    for (let j = 0; j < batchSize && (i + j) <= totalPages; j++) {
+                        let pageNum = formatPageNumber(i + j);
+                        let imgUrl = `Quran${pageNum}.jpg`;
+                        
+                        promises.push(
+                            fetch(imgUrl).then(response => {
+                                if (response.ok) {
+                                    return cache.put(imgUrl, response);
+                                }
+                            })
+                        );
+                    }
+                    await Promise.all(promises);
+                    downloadedCount += promises.length;
+                    progress.innerText = `دریافت: ${downloadedCount} از ${totalPages}`;
+                }
+
+                progress.innerText = "دانلود تکمیل شد!";
+                btn.innerText = "آماده کار آفلاین";
+                progress.style.color = "#4ade80";
+            } catch (error) {
+                console.error("خطا در دانلود:", error);
+                progress.innerText = "خطا در دانلود، اینترنت را چک کنید.";
+                progress.style.color = "#f87171";
+                btn.disabled = false;
+                btn.innerText = "تلاش مجدد";
+            }
+        }
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    alert(`خطا در ورود به حالت تمام‌صفحه: ${err.message}`);
-                });
+                document.documentElement.requestFullscreen().catch(err => {});
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
@@ -299,6 +398,7 @@
             }
             
             let btn = document.createElement("button");
+            btn.className = "juz-btn";
             btn.innerText = "جزء " + toPersianNum(i);
             
             btn.onclick = function() {
@@ -373,6 +473,16 @@
                 currentPage = parseInt(savedPage, 10);
             }
             updatePages();
+            
+            caches.open('quran-cache-v1').then(cache => {
+                cache.match('Quran001.jpg').then(response => {
+                    if (response) {
+                        const btn = document.getElementById('downloadBtn');
+                        btn.innerText = "آماده کار آفلاین";
+                        btn.disabled = true;
+                    }
+                });
+            });
         };
     </script>
 </body>
