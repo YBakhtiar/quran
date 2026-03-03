@@ -200,7 +200,7 @@
             object-fit: contain;
             border-radius: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            background-color: white;
+            background-color: #f5f5f5;
             transition: filter 0.3s;
         }
         
@@ -271,7 +271,6 @@
             transform: scale(1.1);
         }
 
-        /* ----- تنظیمات مخصوص موبایل ----- */
         @media screen and (max-width: 768px) {
             .quran-container {
                 padding: 10px;
@@ -308,8 +307,8 @@
         <button class="nav-btn right-btn" onclick="prevPage()" title="صفحه قبل">&#10094;</button>
 
         <div class="quran-container">
-            <img id="rightPage" class="page" alt="صفحه راست">
-            <img id="leftPage" class="page" alt="صفحه چپ">
+            <img id="rightPage" class="page" alt="صفحه راست" onerror="handleImageError(this)">
+            <img id="leftPage" class="page" alt="صفحه چپ" onerror="handleImageError(this)">
         </div>
 
         <button class="nav-btn left-btn" onclick="nextPage()" title="صفحه بعد">&#10095;</button>
@@ -318,6 +317,7 @@
     </div>
 
     <script>
+        const CACHE_NAME = 'quran-cache-v5';
         const totalPages = 623;
         let currentPage = 1;
         let isDownloaded = false; 
@@ -362,31 +362,28 @@
                 progress.style.color = "#8da4be";
 
                 try {
-                    const cache = await caches.open('quran-cache-v1');
+                    const cache = await caches.open(CACHE_NAME);
                     let downloadedCount = 0;
                     
-                    const batchSize = 20; 
-                    for (let i = 1; i <= totalPages; i += batchSize) {
-                        const promises = [];
-                        for (let j = 0; j < batchSize && (i + j) <= totalPages; j++) {
-                            let pageNum = formatPageNumber(i + j);
-                            // مسیر خواندن عکس به پوشه images تغییر کرده است
-                            let imgUrl = `images/Quran${pageNum}.jpg`; 
-                            
-                            promises.push(
-                                fetch(imgUrl).then(response => {
-                                    if (response.ok) {
-                                        return cache.put(imgUrl, response);
-                                    }
-                                })
-                            );
+                    for (let i = 1; i <= totalPages; i++) {
+                        let pageNum = formatPageNumber(i);
+                        let imgUrl = `images/Quran${pageNum}.jpg`;
+                        
+                        try {
+                            const response = await fetch(imgUrl + '?t=' + new Date().getTime());
+                            if (response.ok) {
+                                await cache.put(imgUrl, response);
+                                downloadedCount++;
+                                progress.innerText = `دریافت: ${downloadedCount} از ${totalPages}`;
+                            }
+                        } catch (e) {
+                            console.log(`خطا در دانلود صفحه ${i}:`, e);
                         }
-                        await Promise.all(promises);
-                        downloadedCount += promises.length;
-                        progress.innerText = `دریافت: ${downloadedCount} از ${totalPages}`;
                     }
                     
                     setDownloadedUI();
+                    alert('دانلود با موفقیت انجام شد!');
+                    updatePages(); // رفرش صفحات
                 } catch (error) {
                     console.error("خطا در دانلود:", error);
                     progress.innerText = "خطا! اینترنت را چک کنید.";
@@ -400,13 +397,24 @@
         async function deleteOfflineFiles() {
             if (confirm("آیا از حذف فایل‌های آفلاین مطمئن هستید؟ این کار حدود ۷۰ مگابایت از فضای دستگاه شما را آزاد می‌کند.")) {
                 try {
-                    await caches.delete('quran-cache-v1');
+                    await caches.delete(CACHE_NAME);
                     resetDownloadedUI();
                     alert("فایل‌های آفلاین با موفقیت حذف شدند.");
+                    updatePages(); // رفرش صفحات
                 } catch(e) {
                     console.error("خطا در حذف فایل‌ها:", e);
                 }
             }
+        }
+
+        function handleImageError(img) {
+            console.log('خطا در لود تصویر:', img.src);
+            // تلاش مجدد بعد از 1 ثانیه
+            setTimeout(() => {
+                if (img.id === 'rightPage') {
+                    updatePages();
+                }
+            }, 1000);
         }
 
         function toggleSidebar() {
@@ -428,6 +436,7 @@
             return num.toString().replace(/\d/g, x => farsiDigits[x]);
         }
 
+        // ساخت دکمه‌های جزء
         const juzListDiv = document.getElementById("juzList");
         for (let i = 1; i <= 30; i++) {
             let startPage;
@@ -467,32 +476,38 @@
 
         function updatePages() {
             let isMobile = window.innerWidth <= 768;
-
-            if (isMobile) {
-                // اضافه شدن پیشوند images/
-                document.getElementById("rightPage").src = "images/Quran" + formatPageNumber(currentPage) + ".jpg";
-                document.getElementById("leftPage").style.display = "none";
-            } else {
-                let rightPageNum = currentPage;
-                if (rightPageNum % 2 === 0) {
-                    rightPageNum -= 1;
-                }
-
-                // اضافه شدن پیشوند images/
-                document.getElementById("rightPage").src = "images/Quran" + formatPageNumber(rightPageNum) + ".jpg";
-                
+            
+            // صفحه سمت راست
+            let rightPageNum = currentPage;
+            if (!isMobile && rightPageNum % 2 === 0) {
+                rightPageNum -= 1;
+            }
+            
+            // ساخت مسیر درست برای تصاویر
+            let rightImagePath = 'images/Quran' + formatPageNumber(rightPageNum) + '.jpg';
+            console.log('بارگذاری صفحه:', rightImagePath);
+            
+            // اضافه کردن timestamp برای جلوگیری از کش مرورگر
+            document.getElementById("rightPage").src = rightImagePath + '?t=' + new Date().getTime();
+            
+            if (!isMobile) {
+                // صفحه سمت چپ
                 let leftPageNum = rightPageNum + 1;
                 if (leftPageNum <= totalPages) {
-                    // اضافه شدن پیشوند images/
-                    document.getElementById("leftPage").src = "images/Quran" + formatPageNumber(leftPageNum) + ".jpg";
+                    let leftImagePath = 'images/Quran' + formatPageNumber(leftPageNum) + '.jpg';
+                    document.getElementById("leftPage").src = leftImagePath + '?t=' + new Date().getTime();
                     document.getElementById("leftPage").style.display = "block";
                 } else {
                     document.getElementById("leftPage").style.display = "none";
                 }
                 currentPage = rightPageNum;
+            } else {
+                document.getElementById("leftPage").style.display = "none";
             }
             
             localStorage.setItem('lastQuranPage', currentPage);
+            
+            // اسکرول به بالا
             window.scrollTo({ top: 0, behavior: 'smooth' });
             document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -519,6 +534,7 @@
             }
         }
 
+        // مدیریت سوایپ لمسی
         let touchstartX = 0;
         let touchstartY = 0;
         let touchendX = 0;
@@ -599,8 +615,8 @@
             }
             updatePages();
             
-            caches.open('quran-cache-v1').then(cache => {
-                // آدرس بررسی کش به تصاویر پوشه images تغییر یافت
+            // بررسی وجود کش
+            caches.open(CACHE_NAME).then(cache => {
                 cache.match('images/Quran001.jpg').then(response => {
                     if (response) {
                         setDownloadedUI();
