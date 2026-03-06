@@ -19,8 +19,8 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(APP_CACHE_NAME)
       .then(cache => {
-        console.log('App shell and fonts cached');
-        // استفاده از addAll با catch برای جلوگیری از شکست کل کش در صورت عدم موفقیت یک فایل
+        console.log('App shell and fonts caching started');
+        // استفاده از allSettled تا اگر یک فونت failed، بقیه مراحل متوقف نشوند
         return Promise.allSettled(
           urlsToCache.map(url => 
             cache.add(url).catch(err => console.log('Failed to cache', url, err))
@@ -47,7 +47,7 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const url = event.request.url;
 
-  // برای تصاویر قرآن: ابتدا کش، سپس نتورک
+  // برای تصاویر قرآن: ابتدا کش، سپس نتورک (استراتژی Cache First)
   if (url.includes('images/Quran')) {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
@@ -55,23 +55,12 @@ self.addEventListener('fetch', event => {
       })
     );
   } 
-  // برای درخواست‌های فونت (woff2, woff, ttf) و CSS فونت: استراتژی کش اول
+  // برای درخواست‌های فونت و CSS مرتبط: استراتژی Network First (ابتدا شبکه، سپس کش)
   else if (url.includes('Vazir') || url.includes('vazirmatn') || url.includes('fontcdn')) {
     event.respondWith(
-      caches.match(event.request).then(cachedResponse => {
-        if (cachedResponse) {
-          // اگر در کش بود، همان را برگردان و در پس‌زمینه آپدیت کن
-          fetch(event.request).then(networkResponse => {
-            if (networkResponse && networkResponse.status === 200) {
-              caches.open(APP_CACHE_NAME).then(cache => {
-                cache.put(event.request, networkResponse.clone());
-              });
-            }
-          }).catch(() => {});
-          return cachedResponse;
-        }
-        // اگر در کش نبود، از شبکه بگیر و کش کن
-        return fetch(event.request).then(networkResponse => {
+      fetch(event.request)
+        .then(networkResponse => {
+          // اگر موفقیت‌آمیز بود، در کش ذخیره کن و پاسخ را برگردان
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(APP_CACHE_NAME).then(cache => {
@@ -79,18 +68,19 @@ self.addEventListener('fetch', event => {
             });
           }
           return networkResponse;
-        }).catch(() => {
-          // در صورت خطا (آفلاین) و نبود در کش، یک استایل پیش‌فرش (اما فونت از کار می‌افتد)
-          // می‌توان یک پاسخ خالی یا خطا برگرداند
-        });
-      })
+        })
+        .catch(() => {
+          // اگر شبکه در دسترس نبود، از کش استفاده کن (حتی اگر وجود نداشته باشد، undefined برمی‌گرداند)
+          return caches.match(event.request);
+        })
     );
   }
-  // سایر درخواست‌ها
+  // سایر درخواست‌ها (مثل index.html, manifest.json): استراتژی Stale-While-Revalidate
   else {
     event.respondWith(
       caches.match(event.request).then(cachedResponse => {
         if (cachedResponse) {
+          // اگر در کش بود، نسخه کش را برگردان و در پس‌زمینه به‌روزرسانی کن
           fetch(event.request).then(networkResponse => {
             if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                caches.open(APP_CACHE_NAME).then(cache => {
@@ -101,6 +91,7 @@ self.addEventListener('fetch', event => {
           return cachedResponse;
         }
         
+        // اگر در کش نبود، از شبکه بگیر و کش کن
         return fetch(event.request).then(networkResponse => {
           if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
             const responseToCache = networkResponse.clone();
@@ -110,9 +101,11 @@ self.addEventListener('fetch', event => {
           }
           return networkResponse;
         }).catch(async () => {
-           if (event.request.mode === 'navigate') {
-             return caches.match('./index.html');
-           }
+          // اگر شبکه قطع بود و درخواست ناوبری بود، index.html را برگردان
+          if (event.request.mode === 'navigate') {
+            return caches.match('./index.html');
+          }
+          // در غیر این صورت، اجازه بده درخواست fail شود (مرورگر ارور می‌دهد)
         });
       })
     );
