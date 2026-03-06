@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vazirmatn/33.0.0/Vazirmatn-font-face.min.css">
     <link href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" rel="stylesheet" type="text/css">
     <style>
-        /* استایل‌های قبلی ثابت می‌مانند + اضافه شدن اسپلش مدرن */
+        /* استایل‌های پایه ثابت */
         body {
             background-color: #0d1622;
             font-family: 'Vazirmatn', 'Vazir', Tahoma, sans-serif !important;
@@ -96,6 +96,7 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
+        /* مودال دانلود (قدیمی) */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -139,7 +140,7 @@
         }
         .dl-cancel-btn:hover { text-decoration: underline; color: #e57e8a; }
 
-        /* اسپلش مودال جدید - شیشه‌ای مدرن iOS */
+        /* اسپلش مودال */
         .splash-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -212,71 +213,124 @@
         }
         .splash-btn i { margin-left: 8px; font-size: 20px; }
 
-        .sidebar {
+        /* مودال مرکزی اجزاء (جایگزین سایدبار) */
+        .juz-overlay {
             position: fixed;
-            top: 0;
-            right: -220px;
-            width: 190px;
-            background: rgba(17, 29, 43, 0.75);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            height: 100vh;
-            box-sizing: border-box;
-            padding: 85px 0 20px 0;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 20, 30, 0.7);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2500;
+        }
+        .juz-card {
+            background: rgba(20, 30, 45, 0.7);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 40px;
+            padding: 30px 20px;
+            width: 400px;
+            max-width: 85%;
+            max-height: 80vh;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+            color: white;
             display: flex;
             flex-direction: column;
-            box-shadow: -5px 0 25px rgba(0,0,0,0.5);
-            z-index: 1001;
-            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
-        .sidebar.open { right: 0; }
-        
-        .sidebar-title {
-            color: #8da4be;
-            text-align: center;
+        .juz-card .close-btn {
+            align-self: flex-start;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #cfddec;
+            font-size: 22px;
+            cursor: pointer;
+            padding: 5px 15px;
+            border-radius: 30px;
             margin-bottom: 15px;
-            font-size: 16px;
-            font-weight: bold;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding-bottom: 15px;
-            letter-spacing: 1px;
-            flex-shrink: 0;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
-
-        #juzList {
+        .juz-card .close-btn:hover {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        .juz-card .continue-btn {
+            background: rgba(255, 215, 150, 0.15);
+            border: 1px solid rgba(255, 215, 150, 0.4);
+            color: white;
+            font-size: 18px;
+            padding: 15px;
+            border-radius: 60px;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Vazirmatn', sans-serif;
+            text-align: center;
+            backdrop-filter: blur(5px);
+        }
+        .juz-card .continue-btn:hover {
+            background: rgba(255, 215, 150, 0.25);
+            border-color: rgba(255, 215, 150, 0.7);
+            transform: translateY(-2px);
+        }
+        .juz-list-container {
             overflow-y: auto;
             flex-grow: 1;
             scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.2) transparent;
-            padding-bottom: 10px;
+            scrollbar-color: rgba(255,255,255,0.3) transparent;
+            padding-left: 5px;
+            margin-bottom: 15px;
         }
+        .juz-list-container::-webkit-scrollbar { width: 4px; }
+        .juz-list-container::-webkit-scrollbar-track { background: transparent; }
+        .juz-list-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 4px; }
         
-        #juzList::-webkit-scrollbar { width: 4px; }
-        #juzList::-webkit-scrollbar-track { background: transparent; }
-        #juzList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
-        
-        .sidebar button.juz-btn {
-            display: block; width: 82%; margin: 6px auto; padding: 9px;
-            background: rgba(255, 255, 255, 0.05); color: #8da4be;
-            border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px;
-            cursor: pointer; transition: all 0.3s ease; font-size: 14px;
+        .juz-item {
+            display: block;
+            width: 100%;
+            padding: 14px 0;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            color: #cfddec;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Vazirmatn', sans-serif;
+            text-align: center;
         }
-        
-        .sidebar button.juz-btn:hover { background: rgba(255, 255, 255, 0.15); color: #fff; transform: scale(1.02); }
-
-        .sidebar button.delete-btn {
-            color: #c96a75; border: 1px dashed rgba(201, 106, 117, 0.3);
-            background: transparent; margin-top: 25px; margin-bottom: 15px;
+        .juz-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.3);
         }
-        
-        .sidebar button.delete-btn:hover {
+        .delete-offline-btn {
+            display: block;
+            width: 100%;
+            padding: 14px 0;
+            margin-top: 10px;
             background: rgba(201, 106, 117, 0.1);
-            border-color: rgba(201, 106, 117, 0.5);
-            color: #e57e8a; transform: scale(1.02);
+            border: 1px dashed rgba(201, 106, 117, 0.4);
+            border-radius: 30px;
+            color: #c96a75;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-family: 'Vazirmatn', sans-serif;
+            text-align: center;
+        }
+        .delete-offline-btn:hover {
+            background: rgba(201, 106, 117, 0.2);
+            border-color: rgba(201, 106, 117, 0.8);
+            color: #e57e8a;
         }
 
+        /* محتوای اصلی */
         .main-content {
             position: relative; flex-grow: 1; display: flex;
             align-items: center; justify-content: center;
@@ -325,7 +379,7 @@
     </style>
 </head>
 <body>
-    <!-- اسپلش مودال شیشه‌ای -->
+    <!-- اسپلش مودال -->
     <div id="splashModal" class="splash-overlay">
         <div class="splash-card">
             <h1>القرآن الكريم</h1>
@@ -336,6 +390,16 @@
             <button class="splash-btn" id="juzListBtn">
                 <i>📑</i> فهرست اجزاء
             </button>
+        </div>
+    </div>
+
+    <!-- مودال مرکزی اجزاء -->
+    <div id="juzOverlay" class="juz-overlay">
+        <div class="juz-card">
+            <button class="close-btn" onclick="closeJuzOverlay()">✕</button>
+            <button class="continue-btn" id="continueFromJuzBtn">▶ ادامه تلاوت</button>
+            <div class="juz-list-container" id="juzList"></div>
+            <button class="delete-offline-btn" id="deleteOfflineBtn" onclick="deleteOfflineFiles()">🗑 حذف فایل‌های آفلاین</button>
         </div>
     </div>
 
@@ -352,12 +416,7 @@
         </div>
     </div>
 
-    <button class="menu-toggle" onclick="toggleSidebar()" title="منو">&#9776;</button>
-    
-    <div class="sidebar" id="sidebar">
-        <div class="sidebar-title">فهرست اجزاء</div>
-        <div id="juzList"></div>
-    </div>
+    <button class="menu-toggle" onclick="openJuzOverlay()" title="فهرست اجزاء">&#9776;</button>
     
     <div class="main-content" id="swipeArea">
         <button class="nav-btn right-btn" onclick="prevPage()" title="صفحه قبل">&#10094;</button>
@@ -395,13 +454,22 @@
             });
         }
 
-        // ======== مدیریت اسپلش مودال ========
+        // ======== توابع مودال اجزاء ========
+        function openJuzOverlay() {
+            document.getElementById('juzOverlay').style.display = 'flex';
+            // اگر اسپلش باز است، ببندش
+            document.getElementById('splashModal').style.display = 'none';
+        }
+        function closeJuzOverlay() {
+            document.getElementById('juzOverlay').style.display = 'none';
+        }
+
+        // ======== توابع اسپلش ========
         function hideSplash() {
             document.getElementById('splashModal').style.display = 'none';
         }
 
         document.getElementById('continueReadingBtn').addEventListener('click', function() {
-            // رفتن به آخرین صفحه ذخیره شده
             let saved = localStorage.getItem('lastQuranPage');
             if (saved && !isNaN(parseInt(saved))) {
                 currentPage = parseInt(saved);
@@ -413,41 +481,46 @@
         });
 
         document.getElementById('juzListBtn').addEventListener('click', function() {
-            // باز کردن سایدبار و بستن اسپلش
-            document.getElementById('sidebar').classList.add('open');
             hideSplash();
-            // صفحه فعلی تغییر نمی‌کند
+            openJuzOverlay();
         });
 
-        // نمایش اسپلش هنگام بارگذاری (پیش از هر چیز)
+        document.getElementById('continueFromJuzBtn').addEventListener('click', function() {
+            let saved = localStorage.getItem('lastQuranPage');
+            if (saved && !isNaN(parseInt(saved))) {
+                currentPage = parseInt(saved);
+            } else {
+                currentPage = 1;
+            }
+            updatePages();
+            closeJuzOverlay();
+        });
+
+        // نمایش اسپلش هنگام بارگذاری
         window.addEventListener('load', function() {
             document.getElementById('splashModal').style.display = 'flex';
         });
 
-        // ======== توابع قبلی با بهبودها ========
+        // ======== توابع دانلود و کش ========
         function openDownloadModal() { document.getElementById('downloadModal').style.display = 'flex'; }
         function closeDownloadModal() { document.getElementById('downloadModal').style.display = 'none'; }
 
         function setDownloadedUI() {
             const dlBtn = document.getElementById('mainDownloadBtn');
             const progress = document.getElementById('progressTooltip');
-            const delBtn = document.getElementById('deleteBtnSidebar');
             
             if (dlBtn) { dlBtn.style.display = "none"; dlBtn.classList.add('done'); }
             if (progress) progress.style.display = "none";
-            if (delBtn) delBtn.style.display = "block";
             isDownloaded = true;
         }
 
         function resetDownloadedUI() {
             const dlBtn = document.getElementById('mainDownloadBtn');
-            const delBtn = document.getElementById('deleteBtnSidebar');
             
             if (dlBtn) {
                 dlBtn.style.display = "block"; dlBtn.innerHTML = "📥 دانلود آفلاین";
                 dlBtn.style.pointerEvents = "auto"; dlBtn.classList.remove('done');
             }
-            if (delBtn) delBtn.style.display = "none";
             isDownloaded = false;
         }
 
@@ -521,7 +594,6 @@
             } catch(e) { alert("خطا در حذف فایل‌ها"); }
         }
 
-        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
         function toggleFullScreen() {
             if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(err => {});
             else if (document.exitFullscreen) document.exitFullscreen();
@@ -532,26 +604,24 @@
             return num.toString().replace(/\d/g, x => farsiDigits[x]);
         }
 
+        // تولید لیست اجزاء در مودال
         const juzListDiv = document.getElementById("juzList");
         for (let i = 1; i <= 30; i++) {
             let startPage;
             if (i === 1) startPage = 3; else if (i === 30) startPage = 588; else startPage = 4 + ((i - 1) * 20);
 
-            let btn = document.createElement("button"); btn.className = "juz-btn";
+            let btn = document.createElement("button"); 
+            btn.className = "juz-item";
             btn.innerText = "جزء " + toPersianNum(i);
             btn.onclick = function() {
                 let targetPage = startPage;
                 if (window.innerWidth > 768 && targetPage % 2 === 0) targetPage -= 1;
-                currentPage = targetPage; updatePages();
-                document.getElementById('sidebar').classList.remove('open');
+                currentPage = targetPage; 
+                updatePages();
+                closeJuzOverlay();
             };
             juzListDiv.appendChild(btn);
         }
-        
-        const delBtn = document.createElement("button");
-        delBtn.id = "deleteBtnSidebar"; delBtn.className = "juz-btn delete-btn";
-        delBtn.innerText = "🗑 حذف فایل‌های آفلاین"; delBtn.style.display = "none";
-        delBtn.onclick = deleteOfflineFiles; juzListDiv.appendChild(delBtn);
 
         function formatPageNumber(num) { return String(num).padStart(3, '0'); }
 
@@ -695,9 +765,8 @@
             if (e.key === 'ArrowRight') { e.preventDefault(); prevPage(); }
         });
 
-        // گوش دادن به تغییر جهت صفحه (برای موبایل)
         window.addEventListener('orientationchange', function() {
-            setTimeout(updatePages, 50); // کمی تأخیر برای اعمال تغییر عرض
+            setTimeout(updatePages, 50);
         });
 
         window.addEventListener('resize', updatePages);
