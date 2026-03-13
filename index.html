@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مصحف اندوپاک ۱۵ خط</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.2/mammoth.browser.min.js"></script>
 </head>
 <body>
     <div class="container">
@@ -15,8 +13,8 @@
             <label for="page-select">انتخاب صفحه:</label>
             <select id="page-select" onchange="loadPage(this.value)"></select>
         </div>
-        <div id="mushaf-page" class="quran-page">
-            <div class="loading">در حال بارگذاری اولیه...</div>
+        <div id="mushaf-page" class="quran-page qpc-hafs">
+            <div class="loading">در حال بارگذاری...</div>
         </div>
     </div>
     <script src="script.js"></script>
