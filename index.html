@@ -3,32 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصحف اندوپاک ۱۵ خط</title>
+    <title>مصحف اندوپاک با فونت مدینه</title>
+    <link rel="stylesheet" href="fonts.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="quran-viewer">
-        <h1>مصحف مدینه ۱۵ خط</h1>
-        
+        <h1>مصحف اندوپاک ۱۵ خط – با رسم‌الخط مدینه</h1>
         <div class="page-controls">
             <button id="prev-page" onclick="prevPages()">◀ صفحه قبل</button>
             <span id="page-indicator">صفحات ۲ و ۳</span>
             <button id="next-page" onclick="nextPages()">صفحه بعد ▶</button>
         </div>
-
         <div class="mushaf-container">
-            <!-- صفحه سمت راست (صفحات فرد) -->
             <div class="page-frame right-page" id="right-page">
                 <div class="page-content" id="right-content"></div>
             </div>
-            
-            <!-- صفحه سمت چپ (صفحات زوج) -->
             <div class="page-frame left-page" id="left-page">
                 <div class="page-content" id="left-content"></div>
             </div>
         </div>
     </div>
-
     <script src="script.js"></script>
 </body>
 </html>
