@@ -7,16 +7,28 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>مصحف اندوپاک ۱۵ خط</h1>
-        <div class="controls">
-            <label for="page-select">انتخاب صفحه:</label>
-            <select id="page-select" onchange="loadPage(this.value)"></select>
+    <div class="quran-viewer">
+        <h1>مصحف مدینه ۱۵ خط</h1>
+        
+        <div class="page-controls">
+            <button id="prev-page" onclick="prevPages()">◀ صفحه قبل</button>
+            <span id="page-indicator">صفحات ۲ و ۳</span>
+            <button id="next-page" onclick="nextPages()">صفحه بعد ▶</button>
         </div>
-        <div id="mushaf-page" class="quran-page qpc-hafs">
-            <div class="loading">در حال بارگذاری...</div>
+
+        <div class="mushaf-container">
+            <!-- صفحه سمت راست (صفحات فرد) -->
+            <div class="page-frame right-page" id="right-page">
+                <div class="page-content" id="right-content"></div>
+            </div>
+            
+            <!-- صفحه سمت چپ (صفحات زوج) -->
+            <div class="page-frame left-page" id="left-page">
+                <div class="page-content" id="left-content"></div>
+            </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
