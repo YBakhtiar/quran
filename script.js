@@ -25,47 +25,47 @@ let surahNames = {
     111: "المسد", 112: "الإخلاص", 113: "الفلق", 114: "الناس"
 };
 
+// تابع کمکی برای ذخیره و بازیابی از localStorage
+const PAGE_CACHE_KEY = 'quran_page_';
+
+function getCachedPageLines(pageNumber) {
+    const cached = localStorage.getItem(PAGE_CACHE_KEY + pageNumber);
+    return cached ? JSON.parse(cached) : null;
+}
+
+function cachePageLines(pageNumber, lines) {
+    localStorage.setItem(PAGE_CACHE_KEY + pageNumber, JSON.stringify(lines));
+}
+
+// کدهای قبلی برای IndexedDB و initDatabase را اینجا قرار دهید (مثل قبل)
+// ...
+
 window.onload = async () => {
+    const pageElement = document.getElementById('mushaf-page');
+    pageElement.classList.add('qpc-hafs'); // اضافه کردن کلاس فونت مانند راهنما
     try {
-        await initDatabase();
+        await initDatabase(); // همان تابع قبلی که از IndexedDB استفاده می‌کند
         populatePageSelect();
-        // صفحه پیش‌فرض: اولین صفحه موجود (احتمالاً 2)
+        
         const select = document.getElementById('page-select');
         if (select.options.length > 0) {
             loadPage(select.value);
+        } else {
+            pageElement.innerHTML = '<div class="error">هیچ صفحه‌ای یافت نشد</div>';
         }
     } catch (error) {
-        console.error('خطا در بارگذاری:', error);
-        document.getElementById('mushaf-page').innerHTML = 
-            `<div class="error">خطا در بارگذاری دیتابیس: ${error.message}</div>`;
+        console.error('خطا:', error);
+        pageElement.innerHTML = `<div class="error">خطا در بارگذاری: ${error.message}</div>`;
     }
 };
 
-async function initDatabase() {
-    const SQL = await initSqlJs({
-        locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}`
-    });
-
-    const response = await fetch('indopak-15-lines.db');
-    if (!response.ok) throw new Error('فایل دیتابیس یافت نشد');
-    
-    const arrayBuffer = await response.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    db = new SQL.Database(uint8Array);
-}
-
 function populatePageSelect() {
     if (!db) return;
-    
-    // استخراج شماره صفحات یکتا از دیتابیس (به جز صفحه 1 اگر فایل ندارد)
-    const result = db.exec("SELECT DISTINCT page_number FROM pages ORDER BY page_number");
+    const result = db.exec("SELECT DISTINCT page_number FROM pages WHERE page_number >= 2 ORDER BY page_number");
     if (result.length > 0) {
         const pages = result[0].values;
         const select = document.getElementById('page-select');
-        // فیلتر صفحاتی که احتمالاً فایل ورد دارند (صفحات 2 تا 611)
-        // توجه: صفحه 1 ممکن است فایل نداشته باشد، در صورت نیاز می‌توانید شرط را تغییر دهید
-        const filteredPages = pages.filter(p => p[0] >= 2 && p[0] <= 611);
-        select.innerHTML = filteredPages.map(p => `<option value="${p[0]}">صفحه ${p[0]}</option>`).join('');
+        select.innerHTML = pages.map(p => `<option value="${p[0]}">صفحه ${p[0]}</option>`).join('');
     }
 }
 
@@ -74,7 +74,7 @@ async function loadPage(pageNumber) {
     pageElement.innerHTML = '<div class="loading">در حال بارگذاری صفحه...</div>';
     
     try {
-        // دریافت اطلاعات خطوط صفحه از دیتابیس
+        // اطلاعات خطوط از دیتابیس
         const linesResult = db.exec(`
             SELECT line_number, line_type, is_centered
             FROM pages 
@@ -87,52 +87,64 @@ async function loadPage(pageNumber) {
             return;
         }
 
-        const lines = linesResult[0].values; // هر آیتم: [line_number, line_type, is_centered]
+        const layoutLines = linesResult[0].values; // [line_number, line_type, is_centered]
 
-        // دانلود فایل Word مربوط به صفحه
-        // نام فایل: pages/[pageNumber].docx  (توجه: صفحه 1 معادل فایل 1.docx نیست، اما طبق گفته شما صفحات از 2 تا 611 هستند و فایل‌ها از 1 تا 610)
-        // پس برای صفحه شماره p، نام فایل pages/(p-1).docx  است (برای p>=2)
-        let fileNumber = pageNumber - 1;
-        const docxUrl = `pages/${fileNumber}.docx`;
+        // تلاش برای بازیابی متن صفحه از localStorage
+        let pageTextLines = getCachedPageLines(pageNumber);
         
-        let docxBuffer;
-        try {
-            const response = await fetch(docxUrl);
-            if (!response.ok) throw new Error('فایل Word یافت نشد');
-            docxBuffer = await response.arrayBuffer();
-        } catch (e) {
-            pageElement.innerHTML = `<div class="error">فایل Word صفحه ${pageNumber} یافت نشد</div>`;
-            return;
-        }
-
-        // استخراج متن از فایل docx با mammoth
-        const mammothResult = await mammoth.extractRawText({ arrayBuffer: docxBuffer });
-        const fullText = mammothResult.value; // متن کامل با پاراگراف‌های جدا شده با کاراکتر newline
-
-        // تقسیم متن به خطوط (با فرض اینکه هر خط یک پاراگراف در Word است)
-        let wordLines = fullText.split('\n').map(line => line.trim()).filter(line => line !== '');
-        
-        // بررسی تطابق تعداد خطوط
-        if (wordLines.length !== lines.length) {
-            console.warn(`تعداد خطوط در فایل Word (${wordLines.length}) با دیتابیس (${lines.length}) مطابقت ندارد.`);
-            // در صورت عدم تطابق، سعی می‌کنیم از تعداد کمینه استفاده کنیم
-            const minLines = Math.min(wordLines.length, lines.length);
-            wordLines = wordLines.slice(0, minLines);
-        }
-
-        // ساخت HTML صفحه
-        let html = '';
-        for (let i = 0; i < lines.length; i++) {
-            const [lineNum, lineType, isCentered] = lines[i];
-            const lineText = wordLines[i] || ''; // اگر خطی نبود، خالی
+        if (!pageTextLines) {
+            // اگر در کش نبود، از فایل Word بخوان
+            const fileNumber = pageNumber - 1;
+            const docxUrl = `pages/${fileNumber}.docx`;
             
+            let docxBuffer;
+            try {
+                const response = await fetch(docxUrl);
+                if (!response.ok) throw new Error('فایل Word یافت نشد');
+                docxBuffer = await response.arrayBuffer();
+            } catch (e) {
+                pageElement.innerHTML = `<div class="error">فایل Word صفحه ${pageNumber} یافت نشد</div>`;
+                return;
+            }
+
+            const mammothResult = await mammoth.extractRawText({ arrayBuffer: docxBuffer });
+            const fullText = mammothResult.value;
+            pageTextLines = fullText.split('\n').map(line => line.trim()).filter(line => line !== '');
+            
+            // ذخیره در localStorage برای دفعات بعد
+            cachePageLines(pageNumber, pageTextLines);
+        }
+
+        // تطابق تعداد خطوط
+        if (pageTextLines.length !== layoutLines.length) {
+            console.warn(`تعداد خطوط در فایل Word (${pageTextLines.length}) با دیتابیس (${layoutLines.length}) مطابقت ندارد.`);
+            const minLines = Math.min(pageTextLines.length, layoutLines.length);
+            pageTextLines = pageTextLines.slice(0, minLines);
+        }
+
+        // ساخت HTML با رعایت is_centered
+        let html = '';
+        for (let i = 0; i < layoutLines.length; i++) {
+            const [lineNum, lineType, isCentered] = layoutLines[i];
+            const lineText = pageTextLines[i] || '';
+            
+            // تعیین کلاس‌ها
             let lineClass = 'line';
             if (lineType === 'surah_name') lineClass += ' surah-name';
             else if (lineType === 'basmallah') lineClass += ' basmallah';
             else if (lineType === 'ayah') lineClass += ' ayah';
             
-            const alignStyle = isCentered ? 'text-align: center;' : 'text-align: justify;';
-            html += `<div class="${lineClass}" style="${alignStyle}">${lineText}</div>`;
+            // اعمال align بر اساس is_centered
+            if (isCentered) {
+                lineClass += ' center';
+                html += `<div class="${lineClass}">${lineText}</div>`;
+            } else {
+                // برای ayah با is_centered=false از justify استفاده می‌کنیم
+                if (lineType === 'ayah') {
+                    lineClass += ' justify';
+                }
+                html += `<div class="${lineClass}" style="text-align: justify;">${lineText}</div>`;
+            }
         }
         
         pageElement.innerHTML = html;
