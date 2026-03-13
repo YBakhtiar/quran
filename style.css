@@ -1,17 +1,19 @@
+/* استفاده از فونت QPC Hafs مانند نمونه راهنما */
+.qpc-hafs {
+    font-family: 'QPC Hafs', 'KFGQPC Hafs', 'Amiri', 'Traditional Arabic', serif;
+}
+
 @font-face {
-    font-family: 'KFGQPC Hafs';
-    src: url('UthmanicHafs1-Ver13.otf') format('opentype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap; /* باعث می‌شود متن با فونت پیش‌فرض نمایش داده شود تا وقتی فونت لود شد */
+    font-family: 'QPC Hafs';
+    src: url('https://fonts.qurancomplex.gov.sa/wp-content/uploads/2021/11/UthmanicHafs1-Ver13.otf') format('opentype');
+    font-display: swap;
 }
 
 body {
     margin: 0;
     padding: 20px;
     background-color: #f5f5f5;
-    /* استک فونت مطمئن: اول فونت اصلی، بعد فونت‌های سیستمی عربی */
-    font-family: 'KFGQPC Hafs', 'Amiri', 'Traditional Arabic', 'Arial', sans-serif;
+    font-family: 'QPC Hafs', 'KFGQPC Hafs', 'Amiri', 'Traditional Arabic', serif;
 }
 
 .container {
@@ -51,6 +53,7 @@ body {
     padding: 0 10px;
 }
 
+/* کلاس‌های خاص مطابق راهنما */
 .surah-name {
     font-size: 32px;
     font-weight: bold;
@@ -60,6 +63,17 @@ body {
 .basmallah {
     font-size: 36px;
     color: #2e7d32;
+}
+
+/* چینش justified برای آیات (وقتی is_centered = false) */
+.line.ayah.justify {
+    text-align: justify;
+    text-justify: inter-word;
+}
+
+/* وسط‌چین برای خطوطی که is_centered = true */
+.line.center {
+    text-align: center;
 }
 
 .loading, .error {
