@@ -1,0 +1,78 @@
+@font-face {
+    font-family: 'MadaniPage001';
+    src: url('fonts/p1.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage002';
+    src: url('fonts/p2.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage003';
+    src: url('fonts/p3.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage004';
+    src: url('fonts/p4.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage005';
+    src: url('fonts/p5.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage006';
+    src: url('fonts/p6.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage007';
+    src: url('fonts/p7.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage008';
+    src: url('fonts/p8.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage009';
+    src: url('fonts/p9.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage010';
+    src: url('fonts/p10.woff2') format('woff2');
+    font-display: swap;
+}
+
+/* ... همین الگو ادامه دارد ... */
+
+@font-face {
+    font-family: 'MadaniPage600';
+    src: url('fonts/p600.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage601';
+    src: url('fonts/p601.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage602';
+    src: url('fonts/p602.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage603';
+    src: url('fonts/p603.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face {
+    font-family: 'MadaniPage604';
+    src: url('fonts/p604.woff2') format('woff2');
+    font-display: swap;
+}
